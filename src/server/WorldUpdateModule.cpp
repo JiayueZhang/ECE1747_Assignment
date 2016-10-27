@@ -53,7 +53,7 @@ WorldUpdateModule::WorldUpdateModule( int id, MessageModule *_comm, SDL_barrier 
 
 void WorldUpdateModule::run()
 {
-	Uint32 start_time;
+    Uint32 start_time;
     Uint32 timeout;
     Uint32 wui, rui;
     
@@ -282,6 +282,7 @@ void WorldUpdateModule::resetStatistics(){
 	memset(&stats, 0, sizeof(stats));
 }
 
+/* Output Data */
 void WorldUpdateModule::logStatistics(){
 	logStream << stats.ticks << ", " << stats.p1time << ", " << stats.p2time << ", " << stats.p3time << ", " << stats.totalTime 
 		<< ", " << stats.requests << ", " << stats.regions << ", " << stats.players << ", " << stats.rounds << ", " << stats.quest
