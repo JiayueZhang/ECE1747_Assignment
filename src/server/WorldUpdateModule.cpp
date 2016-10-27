@@ -40,7 +40,7 @@ WorldUpdateModule::WorldUpdateModule( int id, MessageModule *_comm, SDL_barrier 
 	snprintf(fileName, 256, "log_%s_%d_%dx%d.csv", sd->algorithm_name, id, sd->wm.regmin.x, sd->wm.regmin.y);
 
 	logStream.open(fileName, ios::out | ios::trunc);
-	logStream << "Ticks, P1Time, P2Time, P3Time, TotalTime, Requests, Regions, Players, Rounds, HasQuest, Replys" << std::endl;
+	logStream << "Iter, P1Time, P2Time, P3Time, TotalTime, Requests, Regions, Players, Rounds, HasQuest, Replys" << std::endl;
 
 	assert( SDL_CreateThread( module_thread, (void*)this ) != NULL );
 }
@@ -96,10 +96,10 @@ void WorldUpdateModule::run()
 			stats.ticks = start_time;
 		}
 
-		// Log current time
+		//current time
 		time = start_time;
 		abs_start_time = start_time;
-
+       // 1st phase
         while( (m = comm->receive( timeout, t_id )) != NULL )
         {
             addr = m->getAddress();
@@ -141,7 +141,7 @@ void WorldUpdateModule::run()
 		stats.p1time += time;
         
         SDL_WaitBarrier(barrier);
-        
+                //second phase
 		// reset time for this phase
 		time = SDL_GetTicks();
 
@@ -178,7 +178,7 @@ void WorldUpdateModule::run()
 
         
         SDL_WaitBarrier(barrier);
-
+                //3rd phase
 		// reset time for this phase
 		time = SDL_GetTicks();
 
@@ -216,9 +216,9 @@ void WorldUpdateModule::run()
 
 		// find time spent on this phase
 		time = SDL_GetTicks() - time;
-		// log P3Time
+		
 		stats.p3time += time;
-	
+	    //printf("iteration %d\n",iteration);
 	    SDL_WaitBarrier(barrier);
 	    rui = SDL_GetTicks() - start_time;    
 	    avg_rui = ( avg_rui < 0 ) ? rui : ( avg_rui * 0.95 + (double)rui * 0.05 );	  
@@ -231,6 +231,7 @@ void WorldUpdateModule::run()
 		stats.rounds++;
 		stats.quest = hasQuest;
 		stats.replys += playerCount;
+		iteration++;
 	}
 }
 
@@ -284,7 +285,7 @@ void WorldUpdateModule::resetStatistics(){
 
 /* Output Data */
 void WorldUpdateModule::logStatistics(){
-	logStream << stats.ticks << ", " << stats.p1time << ", " << stats.p2time << ", " << stats.p3time << ", " << stats.totalTime 
+	logStream << iteration << ", " << stats.p1time << ", " << stats.p2time << ", " << stats.p3time << ", " << stats.totalTime 
 		<< ", " << stats.requests << ", " << stats.regions << ", " << stats.players << ", " << stats.rounds << ", " << stats.quest
 		<< ", " << stats.replys << std::endl;
 	logStream.flush();
